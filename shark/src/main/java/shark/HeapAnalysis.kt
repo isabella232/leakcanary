@@ -92,7 +92,8 @@ data class HeapAnalysisSuccess(
   /**
    * The list of [LibraryLeak] found in the heap dump by [HeapAnalyzer].
    */
-  val libraryLeaks: List<LibraryLeak>
+  val libraryLeaks: List<LibraryLeak>,
+  val unreachableObjects: List<LeakTraceObject>
 ) : HeapAnalysis() {
   /**
    * The list of [Leak] found in the heap dump by [HeapAnalyzer], ie all [applicationLeaks] and
@@ -119,7 +120,13 @@ See https://square.github.io/leakcanary/fundamentals-how-leakcanary-works/#4-cat
 ${if (libraryLeaks.isNotEmpty()) "\n" + libraryLeaks.joinToString(
         "\n\n"
     ) + "\n" else ""}====================================
-METADATA
+${unreachableObjects.size} UNREACHABLE OBJECTS
+
+An unreachable object is an object for which we determined it should have been garbage collected,
+it's still in memory yet we cannot determine a path from GC roots.
+${if (unreachableObjects.isNotEmpty()) "\n" + unreachableObjects.joinToString(
+        "\n\n"
+    ) + "\n" else ""}METADATA
 
 Please include this in bug reports and Stack Overflow questions.
 ${if (metadata.isNotEmpty()) "\n" + metadata.map { "${it.key}: ${it.value}" }.joinToString(
